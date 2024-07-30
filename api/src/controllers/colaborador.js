@@ -23,21 +23,78 @@ const login = async (req, res) => {
     }
 };
 
+const create = async (req, res) => {
+    const { matricula, nome, cargo, setor, pin } = req.body;
+    try {
+        const colaborador = await prisma.colaborador.create({
+            data: {
+                matricula: matricula,
+                nome: nome,
+                cargo: cargo,
+                setor: setor,
+                pin: pin
+            }
+        });
+        return res.status(201).json(colaborador);
+    } catch (error) {
+        return res.status(400).json({ message: 'Erro ao criar colaborador', error: error.message });
+    }
+};
+
 const read = async (req, res) => {
-    if (req.params.matricula !== undefined) {
-        const colaborador = await prisma.colaborador.findUnique({
+    try {
+        if (req.params.matricula !== undefined) {
+            const colaborador = await prisma.colaborador.findUnique({
+                where: {
+                    matricula: req.params.matricula
+                }
+            });
+            if (colaborador) {
+                return res.json(colaborador);
+            } else {
+                return res.status(404).json({ message: 'Colaborador não encontrado' });
+            }
+        } else {
+            const colaboradores = await prisma.colaborador.findMany();
+            return res.json(colaboradores);
+        }
+    } catch (error) {
+        return res.status(500).json({ message: 'Erro no servidor', error: error.message });
+    }
+};
+
+const update = async (req, res) => {
+    const { matricula, nome, cargo, setor, pin } = req.body;
+    try {
+        const colaborador = await prisma.colaborador.update({
+            where: {
+                matricula: matricula
+            },
+            data: { nome, cargo, setor, pin }
+        });
+        return res.status(202).json(colaborador);
+    } catch (error) {
+        return res.status(404).json({ message: 'Colaborador não encontrado', error: error.message });
+    }
+};
+
+const del = async (req, res) => {
+    try {
+        const colaborador = await prisma.colaborador.delete({
             where: {
                 matricula: req.params.matricula
             }
         });
-        return res.json(colaborador);
-    } else {
-        const colaboradores = await prisma.colaborador.findMany();
-        return res.json(colaboradores);
+        return res.status(204).json(colaborador);
+    } catch (error) {
+        return res.status(404).json({ message: "colaborador não encontrado", error: error.message });
     }
-};
+}
 
 module.exports = {
     login,
-    read
+    create,
+    read,
+    update,
+    del
 };
