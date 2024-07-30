@@ -38,6 +38,4 @@ model Comentario{
   comentario String @db.VarChar(255)
   oss Os @relation("possui",fields: [os], references: [id])
   colaboradores Colaborador @relation("faz",fields: [colaborador], references: [matricula])
-
-
-
+}
