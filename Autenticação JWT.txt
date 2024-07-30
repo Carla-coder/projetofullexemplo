@@ -1,0 +1,9 @@
+Aula #01 - Projetos
+
+Autenticação JWT
+
+Projeto => Início => Planejamento e execução ( juntos ) => encerramento
+Planejamento => Obtenção de Recursos => Intelectuais (conhecimento)
+                                        Físicos ( R$)
+
+
