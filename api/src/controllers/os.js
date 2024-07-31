@@ -7,7 +7,7 @@ const create = async (req, res) => {
     try {
         const novaOs = await prisma.os.create({
             data: {
-                descricao,
+                descricao: String(descricao),
                 colaborador,
                 executor
             }
@@ -62,20 +62,30 @@ const update = async (req, res) => {
     }
 };
 
-// Deleta uma OS
+//Deleta uma OS
 const del = async (req, res) => {
     try {
-        const deletadoOs = await prisma.os.delete({
+        const os = await prisma.os.findUnique({
             where: {
                 id: parseInt(req.params.id)
             }
         });
+
+        if (!os) {
+            return res.status(404).json({ message: 'OS não encontrada' });
+        }
+
+        await prisma.os.delete({
+            where: {
+                id: parseInt(req.params.id)
+            }
+        });
+
         return res.status(204).send();
     } catch (error) {
-        return res.status(404).json({ message: 'OS não encontrada', error: error.message });
+        return res.status(500).json({ message: 'Erro no servidor', error: error.message });
     }
 };
-
 module.exports = {
     create,
     read,

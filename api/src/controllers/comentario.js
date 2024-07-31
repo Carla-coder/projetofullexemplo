@@ -62,16 +62,26 @@ const update = async (req, res) => {
 // Deleta um comentário
 const del = async (req, res) => {
     try {
-        const deletadoComentario = await prisma.comentario.delete({
+        const comentario = await prisma.comentario.findUnique({
             where: {
                 id: parseInt(req.params.id)
             }
         });
-        return res.status(204).send();
+        if (comentario) {
+            await prisma.comentario.delete({
+                where: {
+                    id: parseInt(req.params.id)
+                }
+            });
+            return res.status(204).send();
+        } else {
+            return res.status(404).json({ message: 'Comentário não encontrado' });
+        }
     } catch (error) {
-        return res.status(404).json({ message: 'Comentário não encontrado', error: error.message });
+        return res.status(500).json({ message: 'Erro no servidor', error: error.message });
     }
 };
+
 
 module.exports = {
     create,
