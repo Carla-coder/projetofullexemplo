@@ -15,18 +15,18 @@ router.put('/colaborador', Middleware.validaAcesso, Colaborador.update);
 router.delete('/colaborador/:matricula', Middleware.validaAcesso, Colaborador.del);
 
 // Rotas de Comentario
-router.post('/comentario', Middleware.validaAcesso, Comentario.create);
-router.get('/comentario', Middleware.validaAcesso, Comentario.read);
-router.get('/comentario/:id', Middleware.validaAcesso, Comentario.read);
-router.put('/comentario', Middleware.validaAcesso, Comentario.update);
-router.delete('/comentario/:id', Middleware.validaAcesso, Comentario.del);
+router.post('/comentario', Comentario.create);
+router.get('/comentario', Comentario.read);
+router.get('/comentario/:id', Comentario.read);
+router.put('/comentario', Comentario.update);
+router.delete('/comentario/:id', Comentario.del);
 
 // Rotas de OS
-router.post('/os', Middleware.validaAcesso, Os.create);
-router.get('/os', Middleware.validaAcesso, Os.read);
-router.get('/os/:id', Middleware.validaAcesso, Os.read);
-router.put('/os', Middleware.validaAcesso, Os.update);
-router.delete('/os/:id', Middleware.validaAcesso, Os.del);
+router.post('/os', Os.create);
+router.get('/os', Os.read);
+router.get('/os/:id', Os.read);
+router.put('/os', Os.update);
+router.delete('/os/:id', Os.del);
 
 // Rota de teste
 router.get('/', (req, res) => {
