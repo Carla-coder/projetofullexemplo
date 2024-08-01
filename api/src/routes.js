@@ -5,6 +5,7 @@ const Middleware = require('./middleware/middleware');
 const Colaborador = require('./controllers/colaborador');
 const Comentario = require('./controllers/comentario');
 const Os = require('./controllers/os');
+const Usuario = require('./controllers/usuario');
 
 // Rotas de Colaborador
 router.post('/login', Colaborador.login);
@@ -27,6 +28,11 @@ router.get('/os', Os.read);
 router.get('/os/:id', Os.read);
 router.put('/os', Os.update);
 router.delete('/os/:id', Os.del);
+
+//Rotas de Usuario
+router.post('/login', Usuario.login);
+router.get('/usuario', Middleware.validaAcesso, Usuario.read);
+router.get('/usuario/:matricula', Middleware.validaAcesso, Usuario.read);   
 
 // Rota de teste
 router.get('/', (req, res) => {

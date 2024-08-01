@@ -21,6 +21,11 @@ async function main() {
             data: comentario
         });
     }
+    for (const usuario of usuarios) {
+            await prisma.usuario.create({
+                data: usuario
+            });
+        }
 }
 
 main()
