@@ -1,87 +1,156 @@
+// const { PrismaClient } = require('@prisma/client');
+// const prisma = new PrismaClient();
+
+// // Cria um novo comentário
+// const create = async (req, res) => {
+//     const { os, colaborador, comentario } = req.body;
+//     try {
+//         const novoComentario = await prisma.comentario.create({
+//             data: {
+//                 os,
+//                 colaborador,
+//                 comentario
+//             }
+//         });
+//         return res.status(201).json(novoComentario);
+//     } catch (error) {
+//         return res.status(400).json({ message: 'Erro ao criar comentário', error: error.message });
+//     }
+// };
+
+// // Lê um ou todos os comentários
+// const read = async (req, res) => {
+//     try {
+//         if (req.params.id) {
+//             const comentario = await prisma.comentario.findUnique({
+//                 where: {
+//                     id: parseInt(req.params.id)
+//                 }
+//             });
+//             if (comentario) {
+//                 return res.json(comentario);
+//             } else {
+//                 return res.status(404).json({ message: 'Comentário não encontrado' });
+//             }
+//         } else {
+//             const comentarios = await prisma.comentario.findMany();
+//             return res.json(comentarios);
+//         }
+//     } catch (error) {
+//         return res.status(500).json({ message: 'Erro no servidor', error: error.message });
+//     }
+// };
+
+// // Atualiza um comentário
+// const update = async (req, res) => {
+//     const { id, comentario } = req.body;
+//     try {
+//         const atualizadoComentario = await prisma.comentario.update({
+//             where: {
+//                 id: parseInt(id)
+//             },
+//             data: {
+//                 comentario
+//             }
+//         });
+//         return res.status(202).json(atualizadoComentario);
+//     } catch (error) {
+//         return res.status(404).json({ message: 'Comentário não encontrado', error: error.message });
+//     }
+// };
+
+// // Deleta um comentário
+// const del = async (req, res) => {
+//     try {
+//         const comentario = await prisma.comentario.findUnique({
+//             where: {
+//                 id: parseInt(req.params.id)
+//             }
+//         });
+//         if (comentario) {
+//             await prisma.comentario.delete({
+//                 where: {
+//                     id: parseInt(req.params.id)
+//                 }
+//             });
+//             return res.status(204).send();
+//         } else {
+//             return res.status(404).json({ message: 'Comentário não encontrado' });
+//         }
+//     } catch (error) {
+//         return res.status(500).json({ message: 'Erro no servidor', error: error.message });
+//     }
+// };
+
+
+// module.exports = {
+//     create,
+//     read,
+//     update,
+//     del
+// };
+
+
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Cria um novo comentário
 const create = async (req, res) => {
-    const { os, colaborador, comentario } = req.body;
     try {
-        const novoComentario = await prisma.comentario.create({
-            data: {
-                os,
-                colaborador,
-                comentario
-            }
+        const comentario = await prisma.comentario.create({
+            data: req.body
         });
-        return res.status(201).json(novoComentario);
+        return res.status(201).json(comentario);
     } catch (error) {
-        return res.status(400).json({ message: 'Erro ao criar comentário', error: error.message });
+        return res.status(400).json({ message: error.message });
     }
 };
 
-// Lê um ou todos os comentários
 const read = async (req, res) => {
-    try {
-        if (req.params.id) {
-            const comentario = await prisma.comentario.findUnique({
+    if (req.params.osId !== undefined) {
+            const os = await prisma.os.findMany({
                 where: {
-                    id: parseInt(req.params.id)
+                    id: parseInt(req.params.osId)
+                },
+                select: {
+                    id: true,
+                    descricao: true,
+                    comentarios: true
                 }
             });
-            if (comentario) {
-                return res.json(comentario);
-            } else {
-                return res.status(404).json({ message: 'Comentário não encontrado' });
-            }
-        } else {
-            const comentarios = await prisma.comentario.findMany();
-            return res.json(comentarios);
-        }
-    } catch (error) {
-        return res.status(500).json({ message: 'Erro no servidor', error: error.message });
+            return res.json(os);
+
+    } else {
+        const comentarioes = await prisma.comentario.findMany();
+        return res.json(comentarioes);
     }
 };
 
-// Atualiza um comentário
 const update = async (req, res) => {
-    const { id, comentario } = req.body;
     try {
-        const atualizadoComentario = await prisma.comentario.update({
+        const comentario = await prisma.comentario.update({
             where: {
-                id: parseInt(id)
+                id: parseInt(req.body.id)
             },
-            data: {
-                comentario
-            }
+            data: req.body
         });
-        return res.status(202).json(atualizadoComentario);
+        return res.status(202).json(comentario);
     } catch (error) {
-        return res.status(404).json({ message: 'Comentário não encontrado', error: error.message });
+        return res.status(404).json({ message: "comentario não encontrada" });
     }
 };
 
-// Deleta um comentário
 const del = async (req, res) => {
     try {
-        const comentario = await prisma.comentario.findUnique({
+        const comentario = await prisma.comentario.delete({
             where: {
                 id: parseInt(req.params.id)
             }
         });
-        if (comentario) {
-            await prisma.comentario.delete({
-                where: {
-                    id: parseInt(req.params.id)
-                }
-            });
-            return res.status(204).send();
-        } else {
-            return res.status(404).json({ message: 'Comentário não encontrado' });
-        }
+        return res.status(204).json(comentario);
     } catch (error) {
-        return res.status(500).json({ message: 'Erro no servidor', error: error.message });
+        return res.status(404).json({ message: "comentario não encontrado" });
     }
-};
-
+}
 
 module.exports = {
     create,

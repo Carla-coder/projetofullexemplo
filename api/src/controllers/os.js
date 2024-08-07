@@ -1,91 +1,182 @@
+// const { PrismaClient } = require("@prisma/client");
+// const prisma = new PrismaClient();
+
+// // Cria uma nova OS
+// const create = async (req, res) => {
+//   const { descricao, colaborador, executor } = req.body;
+//   try {
+//     const novaOs = await prisma.os.create({
+//       data: {
+//         descricao: String(descricao),
+//         colaborador,
+//         executor,
+//       },
+//     });
+//     return res.status(201).json(novaOs);
+//   } catch (error) {
+//     return res
+//       .status(400)
+//       .json({ message: "Erro ao criar OS", error: error.message });
+//   }
+// };
+
+// // Lê uma ou todas as OSs
+// const read = async (req, res) => {
+//   try {
+//     if (req.params.id) {
+//       const os = await prisma.os.findUnique({
+//         where: {
+//           id: parseInt(req.params.id),
+//         },
+//       });
+//       if (os) {
+//         return res.json(os);
+//       } else {
+//         return res.status(404).json({ message: "OS não encontrada" });
+//       }
+//     } else {
+//       const os = await prisma.os.findMany();
+//       return res.json(os);
+//     }
+//   } catch (error) {
+//     return res
+//       .status(500)
+//       .json({ message: "Erro no servidor", error: error.message });
+//   }
+// };
+
+// // Atualiza uma OS
+// const update = async (req, res) => {
+//   const { id, descricao, colaborador, executor, encerramento } = req.body;
+//   try {
+//     const atualizadoOs = await prisma.os.update({
+//       where: {
+//         id: parseInt(id),
+//       },
+//       data: {
+//         descricao,
+//         colaborador,
+//         executor,
+//         encerramento,
+//       },
+//     });
+//     return res.status(202).json(atualizadoOs);
+//   } catch (error) {
+//     return res
+//       .status(404)
+//       .json({ message: "OS não encontrada", error: error.message });
+//   }
+// };
+
+// //Deleta uma OS
+// const del = async (req, res) => {
+//   try {
+//     const os = await prisma.os.findUnique({
+//       where: {
+//         id: parseInt(req.params.id),
+//       },
+//     });
+
+//     if (!os) {
+//       return res.status(404).json({ message: "OS não encontrada" });
+//     }
+
+//     await prisma.os.delete({
+//       where: {
+//         id: parseInt(req.params.id),
+//       },
+//     });
+
+//     return res.status(204).send();
+//   } catch (error) {
+//     return res
+//       .status(500)
+//       .json({ message: "Erro no servidor", error: error.message });
+//   }
+// };
+// module.exports = {
+//   create,
+//   read,
+//   update,
+//   del,
+// };
+
+
+
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Cria uma nova OS
 const create = async (req, res) => {
-    const { descricao, colaborador, executor } = req.body;
     try {
-        const novaOs = await prisma.os.create({
-            data: {
-                descricao: String(descricao),
-                colaborador,
-                executor
-            }
+        const os = await prisma.os.create({
+            data: req.body
         });
-        return res.status(201).json(novaOs);
+        return res.status(201).json(os);
     } catch (error) {
-        return res.status(400).json({ message: 'Erro ao criar OS', error: error.message });
+        return res.status(400).json({ message: error.message });
     }
 };
 
-// Lê uma ou todas as OSs
 const read = async (req, res) => {
-    try {
-        if (req.params.id) {
-            const os = await prisma.os.findUnique({
+    if (req.params.matricula !== undefined) {
+        //Buscar colaborador para saber qual o setor
+        const colaborador = await prisma.colaborador.findUnique({
+            where: {
+                matricula: req.params.matricula
+            }
+        });
+        //Verificar se não é do setor de manutenção
+        if (colaborador.setor !== "Manutenção") {
+            //Listar todas as OSs do colaborador
+            const os = await prisma.os.findMany({
                 where: {
-                    id: parseInt(req.params.id)
+                    colaborador: req.params.matricula
                 }
             });
-            if (os) {
-                return res.json(os);
-            } else {
-                return res.status(404).json({ message: 'OS não encontrada' });
-            }
-        } else {
-            const os = await prisma.os.findMany();
+            return res.json(os);
+        }else{
+            //Listar todas as OSs abertas
+            const os = await prisma.os.findMany({
+                where: {
+                    encerramento: null
+                }
+            });
             return res.json(os);
         }
-    } catch (error) {
-        return res.status(500).json({ message: 'Erro no servidor', error: error.message });
+    } else {
+        //Listar todas as OSs
+        const oses = await prisma.os.findMany();
+        return res.json(oses);
     }
 };
 
-// Atualiza uma OS
 const update = async (req, res) => {
-    const { id, descricao, colaborador, executor, encerramento } = req.body;
     try {
-        const atualizadoOs = await prisma.os.update({
+        const os = await prisma.os.update({
             where: {
-                id: parseInt(id)
+                id: parseInt(req.body.id)
             },
-            data: {
-                descricao,
-                colaborador,
-                executor,
-                encerramento
-            }
+            data: req.body
         });
-        return res.status(202).json(atualizadoOs);
+        return res.status(202).json(os);
     } catch (error) {
-        return res.status(404).json({ message: 'OS não encontrada', error: error.message });
+        return res.status(404).json({ message: "os não encontrada" });
     }
 };
 
-//Deleta uma OS
 const del = async (req, res) => {
     try {
-        const os = await prisma.os.findUnique({
+        const os = await prisma.os.delete({
             where: {
                 id: parseInt(req.params.id)
             }
         });
-
-        if (!os) {
-            return res.status(404).json({ message: 'OS não encontrada' });
-        }
-
-        await prisma.os.delete({
-            where: {
-                id: parseInt(req.params.id)
-            }
-        });
-
-        return res.status(204).send();
+        return res.status(204).json(os);
     } catch (error) {
-        return res.status(500).json({ message: 'Erro no servidor', error: error.message });
+        return res.status(404).json({ message: "os não encontrado" });
     }
-};
+}
+
 module.exports = {
     create,
     read,
